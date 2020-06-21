@@ -1,0 +1,116 @@
+from math import *
+def nextPowerOf2(value):
+    if(value==0):
+        return 1
+    elif(value&(value-1)==0):
+        return value
+    else:
+        while(value&(value-1)!=0):
+            value=value&(value-1)
+        return value<<1
+class segment_node:
+    def __init__(self,start,end,value):
+        self.start=start
+        self.end=end
+        self.value=value
+def segment(array,segment_tree,start,end,index):
+    segment_tree[index].start=start
+    segment_tree[index].end=end
+    if(start==end):
+        segment_tree[index].value=array[start]
+        return
+    else:
+        mid=floor((end+start)/2)
+        if(mid>=start):
+            segment(array,segment_tree,start,mid,2*index+1)
+        if(mid<end):
+            segment(array,segment_tree,mid+1,end,2*index+2)
+        segment_tree[index].value=min(segment_tree[2*index+1].value,segment_tree[2*index+2].value)
+def givemin(segment_tree,start,end,ind):
+    if(start<=segment_tree[ind].start and end>=segment_tree[ind].end):
+        return segment_tree[ind].value
+    elif((end<segment_tree[ind].end and end<segment_tree[ind].start) or (start>segment_tree[ind].start and start>segment_tree[ind].end)):
+        return inf
+    else:
+        return min(givemin(segment_tree,start,end,2*ind+1),givemin(segment_tree,start,end,2*ind+2))
+def change_index(segment_tree,index,value):
+    segment_tree[index].value=value
+    child=index
+    parent=floor((child-1)/2)
+    while(child>0 and segment_tree[child].value<segment_tree[parent].value):
+        segment_tree[parent].value=segment_tree[child].value
+        temp=child
+        child=parent
+        parent=floor((child-1)/2)
+def change_index_range(segment_tree,copy_tree,start,end,value,index):
+    if(copy_tree[index]!=0):
+        val=copy_tree[index]
+        segment_tree[index].value+=val
+        if(2*index+1)<len(copy_tree):
+            copy_tree[2*index+1]+=val
+        if(2*index+2)<len(copy_tree):
+            copy_tree[2*index+2]+=val
+        copy_tree[index]=0
+    if((segment_tree[index].start>start and segment_tree[index].start>end) or(segment_tree[index].end<start and segment_tree[index].end<end)):
+        return segment_tree[index].value
+    elif(segment_tree[index].start>=start and segment_tree[index].end<=end):
+        segment_tree[index].value+=value
+        if(2*index+1)<len(copy_tree):
+            copy_tree[2*index+1]+=value
+        if(2*index+2)<len(copy_tree):
+            copy_tree[2*index+2]+=value
+        return segment_tree[index].value
+    else:
+        left=inf
+        right=inf
+        if(2*index+1<=len(segment_tree)):
+            left=change_index_range(segment_tree,copy_tree,start,end,value,2*index+1)
+        if(2*index+2<=len(segment_tree)):
+            right=change_index_range(segment_tree,copy_tree,start,end,value,2*index+2)
+        segment_tree[index].value=min(left,right)
+        return min(left,right)
+def query_lazy(segnment_tree,copy_tree,start,end,index):
+    if(copy_tree[index]!=0):
+        val=copy_tree[index]
+        if(2*index+1<=len(segment_tree)):
+            copy_tree[2*index+1]+=val
+        if(2*index+2<=len(segment_tree)):
+            copy_tree[2*index+2]+=val
+        copy_tree[index]=0
+    if((segment_tree[index].start<start and segment_tree[index].end<start) or (segment_tree[index].start>end and segment_tree[index].end>end)):
+       return inf
+    elif(segment_tree[index].start>=start and segment_tree[index].end<=end):
+        return segment_tree[index].value
+    else:
+        left=inf
+        right=inf
+        if(2*index+1<=len(segment_tree)):
+            left=query_lazy(segment_tree,copy_tree,start,end,2*index+1)
+        if(2*index+2<=len(segment_tree)):
+            right=query_lazy(segment_tree,copy_tree,start,end,2*index+2)
+    return min(left,right)
+        
+array=input().split()
+for i in range(len(array)):
+    array[i]=int(array[i])
+segment_tree=[]
+for i in range(2*nextPowerOf2(len(array))-1):
+    segment_tree.append(segment_node(-inf,inf,inf))
+segment(array,segment_tree,0,len(array)-1,0)
+for i in segment_tree:
+    print('start',i.start,'end',i.end,'value',i.value)
+copy_tree=[0]*len(segment_tree)
+change_index_range(segment_tree,copy_tree,0,3,3,0)
+for i in segment_tree:
+    print('start',i.start,'end',i.end,'value',i.value)
+print(copy_tree)
+change_index_range(segment_tree,copy_tree,0,3,1,0)
+for i in segment_tree:
+    print('start',i.start,'end',i.end,'value',i.value)
+print(copy_tree)
+change_index_range(segment_tree,copy_tree,0,0,2,0)
+for i in segment_tree:
+    print('start',i.start,'end',i.end,'value',i.value)
+print(copy_tree)
+print(query_lazy(segment_tree,copy_tree,3,5,0))
+print(copy_tree)
