@@ -1,0 +1,36 @@
+def longestSubMatrix(array1,array2):
+    array1.insert(0,' ')
+    array2.insert(0,' ')
+    res_array=[[0]*(len(array1)) for i in range(len(array2))]
+    for i in range(1,len(array2)):
+        taken=0
+        for j in range(1,len(array1)):
+            if(taken==0 and array1[j]==array2[i]):
+                taken=1
+                res_array[i][j]=res_array[i-1][j-1]+1
+                continue
+            res_array[i][j]=max(res_array[i-1][j],res_array[i][j-1])
+    return res_array
+def longestSubMax(array1,array2):
+    res_array=longestSubMatrix(array1,array2)
+    return res_array[len(res_array)-1][len(res_array[0])-1]
+def longestSubArray(array1,array2):
+    res_array=longestSubMatrix(array1,array2)
+    curi=len(res_array)-1
+    curj=len(res_array[0])-1
+    res=[]
+    while(curi>0 and curj>0):
+        if(res_array[curi][curj]==res_array[curi-1][curj-1]+1):
+            res.append(array1[curi])
+            curi-=1
+            curj-=1
+            continue
+        if(res_array[curi][curj-1]>res_array[curi-1][curj]):
+            curj=curj-1
+            continue
+        else:
+            curi-=1
+    return res
+res=longestSubArray(list("abcdaf"),list("acbcf"))
+print(res)
+            
