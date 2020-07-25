@@ -1,0 +1,41 @@
+text="zzzzzzza"
+pattern="a"
+if len(pattern)>len(text):
+        print("no match found")
+else:
+    prime=101
+    path=0
+    txth=0
+    ind=0
+    for i in range(len(pattern)):
+        path+=ord(pattern[i])*pow(prime,ind)
+        txth+=ord(text[i])*pow(prime,ind)
+        ind+=1
+    ind-=1
+    n1=len(text)
+    n2=len(pattern)
+    start=0
+    end=len(pattern)-1
+    while(1):
+        if path==txth:
+            flag=0
+            for i in range(n2):
+                if pattern[i]==text[start+i]:
+                    continue
+                flag=1
+                break
+            if flag==0:
+                print("match found at index",start)
+                break
+        txth-=ord(text[start])
+        txth/=prime
+        if end+1<n1:
+            txth+=ord(text[end+1])*pow(prime,ind)
+        else:
+            print("no match found 1")
+            break
+        start+=1
+        end+=1
+        
+        
+    
